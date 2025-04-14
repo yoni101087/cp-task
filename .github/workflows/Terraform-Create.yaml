@@ -22,10 +22,6 @@ jobs:
       with:
         terraform_version: ${{ env.TF_VERSION }}
 
-    - name: Setup TFLint
-      uses: terraform-linters/setup-tflint@v4
-      with:
-        tflint_version: latest
 
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v4
