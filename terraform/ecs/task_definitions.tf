@@ -1,6 +1,6 @@
 locals {
-  ecs_cpu    = "256"
-  ecs_memory = "512"
+  ecs_cpu    = 256
+  ecs_memory = 512
 }
 
 # Task definition for app1
