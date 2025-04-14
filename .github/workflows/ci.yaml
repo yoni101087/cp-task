@@ -1,0 +1,126 @@
+name: CI 
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        required: true
+        type: string
+
+jobs:
+  build-app1:
+    name: Build, Test, and Push app 1
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.9
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r ./app1/requirements.txt
+
+      - name: Run unit tests
+        run: |
+          set -o pipefail
+          # Set test environment variables
+          export QUEUE_URL="test-queue-url"
+          export TOKEN_PARAM_NAME="test-token-param"
+          export AWS_REGION="us-west-2"
+          export TESTING="True"
+          
+          cd ./app1
+          python -m unittest discover -s tests -p "*.py" 2>&1 | tee ../test-results-app1.log
+          cd ..
+
+
+      - name: Set up AWS CLI
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-west-2
+          audience: sts.amazonaws.com
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Get ECR Repository URL
+        id: ecr-url
+        run: |
+          ECR_URL_app1=$(aws ecr describe-repositories --repository-names ${{ inputs.environment }}-app1 --query 'repositories[0].repositoryUri' --output text)
+          echo "ECR_URL_app1=$ECR_URL_app1" >> $GITHUB_ENV
+
+      - name: Get Git Commit Hash
+        id: git-info
+        run: echo "GIT_COMMIT_HASH=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+
+      - name: Build and Push Docker Image
+        run: |
+          docker build -t $ECR_URL_app1:latest -t $ECR_URL_app1:${{ env.GIT_COMMIT_HASH }} ./app1
+          aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin $ECR_URL_app1
+          docker push $ECR_URL_app1:latest
+          docker push $ECR_URL_app1:${{ env.GIT_COMMIT_HASH }}
+
+  build-app2:
+    name: Build, Test, and Push app 2
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.9
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r ./app2/requirements.txt
+
+      - name: Run unit tests
+        run: |
+          set -o pipefail
+          # Set test environment variables
+          export QUEUE_URL="test-queue-url"
+          export BUCKET_NAME="test-bucket"
+          export AWS_REGION="us-west-2"
+          export TESTING="True"
+          
+          cd ./app2
+          python -m unittest discover -s tests -p "*.py" 2>&1 | tee ../test-results-app2.log
+          cd ..
+
+      - name: Set up AWS CLI
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-west-2
+          audience: sts.amazonaws.com
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Get ECR Repository URL
+        id: ecr-url
+        run: |
+          ECR_URL_app2=$(aws ecr describe-repositories --repository-names ${{ inputs.environment }}-app2 --query 'repositories[0].repositoryUri' --output text)
+          echo "ECR_URL_app2=$ECR_URL_app2" >> $GITHUB_ENV
+
+      - name: Get Git Commit Hash
+        id: git-info
+        run: echo "GIT_COMMIT_HASH=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+
+      - name: Build and Push Docker Image
+        run: |
+          docker build -t $ECR_URL_app2:latest -t $ECR_URL_app2:${{ env.GIT_COMMIT_HASH }} ./app2
+          aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin $ECR_URL_app2
+          docker push $ECR_URL_app2:latest
+          docker push $ECR_URL_app2:${{ env.GIT_COMMIT_HASH }}

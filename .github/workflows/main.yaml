@@ -1,0 +1,31 @@
+name: Main Pipeline
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - 'terraform/**'
+      - '**.md'
+  pull_request:
+    branches:
+      - main
+    paths-ignore:
+      - 'terraform/**'
+      - '**.md'
+
+
+jobs:
+
+  
+  trigger-ci:
+    name: Trigger CI Workflow
+    uses: ./.github/workflows/ci.yml
+    secrets: inherit
+
+
+  trigger-cd:
+    name: Trigger CD Workflow
+    needs: trigger-ci
+    uses: ./.github/workflows/cd.yml
+    secrets: inherit
