@@ -1,15 +1,9 @@
-locals {
-  ecs_cpu    = 256
-  ecs_memory = 512
-}
-
-# Task definition for app1
 resource "aws_ecs_task_definition" "app1" {
   family                   = "app1"
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
-  cpu                      = local.ecs_cpu
-  memory                   = local.ecs_memory
+  cpu                      = "256"
+  memory                   = "512"
   execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
   task_role_arn            = aws_iam_role.ecs_task_role.arn
 
@@ -17,8 +11,8 @@ resource "aws_ecs_task_definition" "app1" {
     {
       name      = "app1-container"
       image     = var.app1_image
-      memory    = local.ecs_memory
-      cpu       = local.ecs_cpu
+      memory    = 512
+      cpu       = 256
       essential = true
       portMappings = [
         {
@@ -42,13 +36,12 @@ resource "aws_ecs_task_definition" "app1" {
   ])
 }
 
-# Task definition for app2
 resource "aws_ecs_task_definition" "app2" {
   family                   = "app2"
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
-  cpu                      = local.ecs_cpu
-  memory                   = local.ecs_memory
+  cpu                      = "256"
+  memory                   = "512"
   execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
   task_role_arn            = aws_iam_role.ecs_task_role.arn
 
@@ -56,12 +49,16 @@ resource "aws_ecs_task_definition" "app2" {
     {
       name      = "app2-container"
       image     = var.app2_image
-      memory    = local.ecs_memory
-      cpu       = local.ecs_cpu
+      memory    = 512
+      cpu       = 256
       essential = true
+      portMappings = []
+      mountPoints = []
+      volumesFrom = []
+      systemControls = []
       environment = [
         { name = "QUEUE_URL", value = var.sqs_queue_url },
-        { name = "BUCKET_NAME", value = var.s3_bucket_name }
+        { name = "BUCKET_NAME", value = var.s3_bucket_name },
       ]
       logConfiguration = {
         logDriver = "awslogs"
@@ -73,4 +70,5 @@ resource "aws_ecs_task_definition" "app2" {
       }
     }
   ])
+
 }
