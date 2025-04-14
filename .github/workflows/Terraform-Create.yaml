@@ -1,7 +1,16 @@
 name: Terraform Deploy
 
 on:
-  workflow_dispatch:  # Manual only
+  workflow_dispatch:
+    inputs:
+      action:
+        description: "Choose Action"
+        required: true
+        default: "plan_and_apply"
+        type: choice
+        options:
+          - plan_only
+          - plan_and_apply
 
 
 env:
@@ -43,6 +52,6 @@ jobs:
       run: terraform plan -out=tfplan
 
     - name: Terraform Apply
-      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      if: ${{ github.event.inputs.action == 'plan_and_apply' }}
       working-directory: ${{ env.TF_WORKING_DIR }}
       run: terraform apply -auto-approve tfplan
