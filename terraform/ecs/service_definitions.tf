@@ -2,7 +2,7 @@
 resource "aws_ecs_service" "app1" {
   name            = "app-1-service"
   cluster         = aws_ecs_cluster.ecs_cluster.id
-  task_definition = aws_ecs_task_definition.app_1.arn
+  task_definition = aws_ecs_task_definition.app1.arn
   desired_count   = 1
   launch_type     = "FARGATE"
 
@@ -13,7 +13,7 @@ resource "aws_ecs_service" "app1" {
   }
 
   load_balancer {
-    target_group_arn = var.app_1_target_group_arn
+    target_group_arn = var.app1_target_group_arn
     container_name   = "app-1-container"
     container_port   = 5000
   }
@@ -23,7 +23,7 @@ resource "aws_ecs_service" "app1" {
 resource "aws_ecs_service" "app2" {
   name            = "app-2-service"
   cluster         = aws_ecs_cluster.ecs_cluster.id
-  task_definition = aws_ecs_task_definition.app_2.arn
+  task_definition = aws_ecs_task_definition.app2.arn
   desired_count   = 1
   launch_type     = "FARGATE"
 
@@ -33,7 +33,4 @@ resource "aws_ecs_service" "app2" {
     assign_public_ip = true
   }
 
-  tags = {
-    Environment = var.environment
-  }
 }
