@@ -1,10 +1,15 @@
 data "aws_caller_identity" "current" {}
 
+# ECS Cluster
 resource "aws_ecs_cluster" "ecs_cluster" {
   name = "ecs-cluster"
 
+  tags = {
+    Name = "ecs-cluster"
+  }
 }
 
+# ECS Task Execution Role
 resource "aws_iam_role" "ecs_task_execution_role" {
   name = "ecs-task-execution-role"
 
@@ -20,18 +25,18 @@ resource "aws_iam_role" "ecs_task_execution_role" {
       }
     ]
   })
-
 }
 
+# Task Execution Policy for CloudWatch Logs
 resource "aws_iam_role_policy" "ecs_task_execution_policy" {
-  name   = "ecs-task-execution-policy"
-  role   = aws_iam_role.ecs_task_execution_role.name
+  name = "ecs-task-execution-policy"
+  role = aws_iam_role.ecs_task_execution_role.name
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
       {
-        Effect   = "Allow"
-        Action   = [
+        Effect = "Allow"
+        Action = [
           "logs:CreateLogStream",
           "logs:PutLogEvents"
         ]
@@ -41,13 +46,13 @@ resource "aws_iam_role_policy" "ecs_task_execution_policy" {
   })
 }
 
-# Attach the Amazon ECS Task Execution Role Policy to the IAM role
+# Attach Managed AWS Policy to Execution Role
 resource "aws_iam_role_policy_attachment" "ecs_task_execution_policy" {
   role       = aws_iam_role.ecs_task_execution_role.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
-# Create an IAM role for ECS task-specific permissions
+# ECS Task Role
 resource "aws_iam_role" "ecs_task_role" {
   name = "ecs-task-role"
 
@@ -63,10 +68,9 @@ resource "aws_iam_role" "ecs_task_role" {
       }
     ]
   })
-
 }
 
-# Attach policies for task-specific permissions (e.g., SQS, S3, SSM)
+# Attach Managed AWS Policies to Task Role
 resource "aws_iam_role_policy_attachment" "ecs_task_policy" {
   role       = aws_iam_role.ecs_task_role.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonSQSFullAccess"
@@ -82,7 +86,7 @@ resource "aws_iam_role_policy_attachment" "ecs_task_ssm_policy" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonSSMReadOnlyAccess"
 }
 
-# Security group for ECS tasks
+# ECS Task Security Group
 resource "aws_security_group" "ecs_task_sg" {
   name        = "ecs-task-sg"
   description = "Security group for ECS tasks"
@@ -92,7 +96,7 @@ resource "aws_security_group" "ecs_task_sg" {
     from_port       = 5000
     to_port         = 5000
     protocol        = "tcp"
-    security_groups = [var.elb_security_group_id]  # Allow traffic from the ELB security group
+    security_groups = [var.elb_security_group_id]
   }
 
   egress {
@@ -102,4 +106,7 @@ resource "aws_security_group" "ecs_task_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  tags = {
+    Name = "ecs-task-sg"
+  }
 }
