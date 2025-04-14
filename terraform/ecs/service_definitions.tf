@@ -1,6 +1,6 @@
 # ECS Service for app 1
 resource "aws_ecs_service" "app1" {
-  name            = "${var.environment}-app-1-service"
+  name            = "app-1-service"
   cluster         = aws_ecs_cluster.ecs_cluster.id
   task_definition = aws_ecs_task_definition.app_1.arn
   desired_count   = 1
@@ -21,7 +21,7 @@ resource "aws_ecs_service" "app1" {
 
 # ECS Service for app 2
 resource "aws_ecs_service" "app2" {
-  name            = "${var.environment}-app-2-service"
+  name            = "app-2-service"
   cluster         = aws_ecs_cluster.ecs_cluster.id
   task_definition = aws_ecs_task_definition.app_2.arn
   desired_count   = 1
