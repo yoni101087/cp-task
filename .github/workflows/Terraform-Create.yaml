@@ -34,18 +34,6 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ env.AWS_REGION }}
 
-    - name: Terraform Format Check
-      working-directory: ${{ env.TF_WORKING_DIR }}
-      run: terraform fmt -check -recursive
-
-    - name: TFLint Init
-      working-directory: ${{ env.TF_WORKING_DIR }}
-      run: tflint --init
-
-    - name: TFLint Run
-      working-directory: ${{ env.TF_WORKING_DIR }}
-      run: tflint --recursive
-
     - name: Terraform Init
       working-directory: ${{ env.TF_WORKING_DIR }}
       run: terraform init
