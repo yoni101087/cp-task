@@ -9,12 +9,12 @@ output "ssm_parameter_arn" {
 }
 
 output "app1_ecr_url" {
-  description = "The ECR URL for app 1"
+  description = "The ECR URL for app1"
   value       = module.ecr.app1_repository_url
 }
 
 output "app2_ecr_url" {
-  description = "The ECR URL for app 2"
+  description = "The ECR URL for app2"
   value       = module.ecr.app2_repository_url
 }
 
@@ -30,26 +30,26 @@ output "s3_bucket_name" {
 
 output "ecs_cluster_id" {
   description = "The ECS cluster id"
-  value = module.ecs.ecs_cluster_id
+  value       = module.ecs.ecs_cluster_id
 }
 
 output "app1_task_definition_arn" {
-  description = "The ARN of the ECS task definition for app 1"
+  description = "The ARN of the ECS task definition for app1"
   value       = module.ecs.app1_task_definition_arn
 }
 
 output "app2_task_definition_arn" {
-  description = "The ARN of the ECS task definition for app 2"
+  description = "The ARN of the ECS task definition for app2"
   value       = module.ecs.app2_task_definition_arn
 }
 
 output "app1_service_name" {
-  description = "The name of the ECS service for app 1"
+  description = "The name of the ECS service for app1"
   value       = module.ecs.app1_service_name
 }
 
 output "app2_service_name" {
-  description = "The name of the ECS service for app 2"
+  description = "The name of the ECS service for app2"
   value       = module.ecs.app2_service_name
 }
 
@@ -57,4 +57,3 @@ output "alb_dns_name" {
   description = "The DNS name of the Application Load Balancer"
   value       = module.elb.alb_dns_name
 }
-
