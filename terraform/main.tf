@@ -11,6 +11,18 @@ module "vpc" {
   enable_nat_gateway   = true
   single_nat_gateway   = true
   enable_dns_hostnames = true
+  
+  public_subnet_tags = {
+    "Name" = "public-subnet"
+    "Environment" = "dev"
+    "Service" = "ecs"
+  }
+
+  private_subnet_tags = {
+    "Name" = "private-subnet"
+    "Environment" = "dev"
+    "Service" = "ecs"
+  }
 
 }
 
