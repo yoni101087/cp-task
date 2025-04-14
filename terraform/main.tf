@@ -16,8 +16,6 @@ module "elb" {
 
 module "ecs" {
   source                = "./ecs"
-  app1_listener_rule_arn = module.elb.app1_listener_rule_arn
-  app2_listener_rule_arn = module.elb.app2_listener_rule_arn
   vpc_id                = var.vpc_id
   subnets               = var.subnets
   elb_security_group_id = module.elb.elb_sg_id

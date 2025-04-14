@@ -1,46 +1,39 @@
-# ECS Service for App1
+# ECS Service for app 1
 resource "aws_ecs_service" "app1" {
-  name            = "app1-service"
+  name            = "${var.environment}-app-1-service"
   cluster         = aws_ecs_cluster.ecs_cluster.id
-  task_definition = aws_ecs_task_definition.app1.arn
+  task_definition = aws_ecs_task_definition.app_1.arn
   desired_count   = 1
   launch_type     = "FARGATE"
 
   network_configuration {
-    subnets          = var.subnets
-    security_groups  = [aws_security_group.ecs_task_sg.id]
+    subnets         = var.subnets
+    security_groups = [aws_security_group.ecs_task_sg.id]
     assign_public_ip = true
   }
 
   load_balancer {
-    target_group_arn = var.app1_target_group_arn
-    container_name   = "app1-container"
+    target_group_arn = var.app_1_target_group_arn
+    container_name   = "app-1-container"
     container_port   = 5000
   }
-
-  # Ensure LB listener exists before creating ECS Service
-  depends_on = [
-    aws_lb_listener_rule.app1
-  ]
 }
 
-# ECS Service for App2
+# ECS Service for app 2
 resource "aws_ecs_service" "app2" {
-  name            = "app2-service"
+  name            = "${var.environment}-app-2-service"
   cluster         = aws_ecs_cluster.ecs_cluster.id
-  task_definition = aws_ecs_task_definition.app2.arn
+  task_definition = aws_ecs_task_definition.app_2.arn
   desired_count   = 1
   launch_type     = "FARGATE"
 
   network_configuration {
-    subnets          = local.ecs_subnets
-    security_groups  = local.ecs_security_groups
+    subnets         = var.subnets
+    security_groups = [aws_security_group.ecs_task_sg.id]
     assign_public_ip = true
   }
 
-
-  # Ensure LB listener exists before creating ECS Service
-  depends_on = [
-    aws_lb_listener_rule.app2
-  ]
+  tags = {
+    Environment = var.environment
+  }
 }
