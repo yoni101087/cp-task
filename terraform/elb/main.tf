@@ -46,5 +46,7 @@ resource "aws_lb" "application_lb" {
 # Target Group for app1
 resource "aws_lb_target_group" "app1_tg" {
   name        = "app1-tg"
-  port        = local.app_port
-  protocol    = "
+  port        = 5000
+  protocol    = "HTTP"
+  vpc_id      = var.vpc_id
+  target_type = "ip"
